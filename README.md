@@ -1,64 +1,65 @@
-# Color Picker — приложение для выбора и сохранения цветов
+# Color Picker — Color Selection and Palette Management App
 
-Простой и удобный графический инструмент на PyQt6 для выбора цветов, отображения их значений в HEX и RGB, а также сохранения и управления палитрой.
-
----
-
-## Возможности
-
-- Выбор цвета через стандартный диалог выбора цвета.
-- Ввод цвета вручную с помощью RGB-спиннеров.
-- Автоматическая генерация палитры из 6 уникальных случайных цветов.
-- Отображение выбранного цвета с HEX и RGB значениями.
-- Сохранение выбранных цветов в палитру с возможностью выбора и удаления.
-- Автоматическое копирование HEX-кода в буфер обмена при выборе цвета.
-- Фиксированный размер окна (400x400), удобный и компактный интерфейс.
+A simple and user-friendly PyQt6 application for selecting colors, displaying their HEX and RGB values, and saving and managing a color palette.
 
 ---
 
-## Установка и запуск
+## Features
 
-1. Убедитесь, что у вас установлен Python 3.7+ и PyQt6:
+- Choose a color using the standard color picker dialog.
+- Manually input color values via RGB spin boxes.
+- Automatically generate a palette of 6 unique random colors.
+- Display the selected color with HEX and RGB values.
+- Save selected colors in a palette with options to select and clear.
+- Automatically copy the HEX code to clipboard upon color selection.
+- Fixed window size (400x400) with a clean and compact interface.
+
+---
+
+## Installation and Running
+
+1. Make sure you have Python 3.7+ and PyQt6 installed:
 ```
 pip install PyQt6
 ```
 
-2. Скачайте или скопируйте файл `colorp.py`.
+2. Download or copy the `color_picker.py` file.
 
-3. Запустите приложение командой:
+3. Run the application with:
+
 ```
 python colorp.py
 ```
 
 ---
 
-## Использование
+## Usage
 
-- Нажмите кнопку **"Select color"** для выбора цвета через диалог.
-- Введите значения RGB вручную и нажмите **"Apply RGB"** для применения.
-- Нажмите **"Generate Custom Palette"** для создания случайной палитры из 6 цветов.
-- Выберите цвет из палитры для его отображения и копирования HEX-кода.
-- Нажмите **"Clear Palette"** для очистки сохранённых цветов.
+- Click **"Select color"** to open the color picker dialog.
+- Enter RGB values manually and click **"Apply RGB"** to apply.
+- Click **"Generate Custom Palette"** to create a random palette of 6 colors.
+- Select a color from the palette to display it and copy its HEX code.
+- Click **"Clear Palette"** to remove all saved colors.
 
 ---
 
-## Скриншот
+## Screenshot
 
 ![Color Picker Screenshot](screenshot.png)  
-*Пример интерфейса приложения*
+*Example of the application interface*
 
 ---
 
-## Лицензия
+## License
 
 MIT License © 2025
 
 ---
 
-## Контакты
+## Contact
 
-Если у вас есть вопросы или предложения, создайте issue или свяжитесь со мной через GitHub.
+If you have questions or suggestions, please open an issue or contact me via GitHub.
 
 ---
 
-Спасибо за использование!
+Thank you for using!
