@@ -11,7 +11,7 @@ class ColorPickerApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Advanced Color Picker")
-        self.resize(500, 450)
+        self.resize(350, 450)
         self.setFixedSize(self.size())
 
         self.palette_colors = set()
