@@ -36,7 +36,7 @@ pip install PyQt6
 ```
 3. Clone repository:
 ```
-git clone https://github.com/yourusername/color-picker.git
+git clone https://github.com/VioletSoul/ColorPicker
 ```
 
 ## Usage 🖱️
