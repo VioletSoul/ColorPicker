@@ -1,5 +1,13 @@
 # Advanced Color Picker Application
 
+![PyQt6](https://img.shields.io/badge/PyQt6-41CD52?style=flat&logo=qt&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue)
+![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-555555)
+![GUI](https://img.shields.io/badge/GUI-PyQt6-41CD52)
+![Version](https://img.shields.io/badge/Version-1.0.0-orange)
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)
+
 Функциональный инструмент для выбора цвета с поддержкой нескольких цветовых пространств и управлением палитрами.
 
 ## Возможности ✨
