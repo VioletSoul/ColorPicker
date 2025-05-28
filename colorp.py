@@ -11,7 +11,7 @@ class ColorPickerApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Advanced Color Picker")
-        self.resize(500, 500)
+        self.resize(500, 450)
         self.setFixedSize(self.size())
 
         self.palette_colors = set()
@@ -236,7 +236,7 @@ class ColorPickerApp(QWidget):
         self.palette_colors.clear()
 
         colors = set()
-        while len(colors) < 6:
+        while len(colors) < 7:
             r, g, b = (random.randint(0, 255) for _ in range(3))
             color = QColor(r, g, b)
             if color.isValid():
