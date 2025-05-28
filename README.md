@@ -1,65 +1,67 @@
-# Color Picker — Color Selection and Palette Management App
+# Advanced Color Picker Application
 
-A simple and user-friendly PyQt6 application for selecting colors, displaying their HEX and RGB values, and saving and managing a color palette.
+![PyQt6](https://img.shields.io/badge/PyQt6-41CD52?style=flat&logo=qt&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
----
+A feature-rich color selection tool with multiple color spaces support and palette management.
 
-## Features
+## Features ✨
 
-- Choose a color using the standard color picker dialog.
-- Manually input color values via RGB spin boxes.
-- Automatically generate a palette of 6 unique random colors.
-- Display the selected color with HEX and RGB values.
-- Save selected colors in a palette with options to select and clear.
-- Automatically copy the HEX code to clipboard upon color selection.
-- Fixed window size (400x400) with a clean and compact interface.
+### Color Selection
+- **Native color dialog** integration
+- **Three color modes**:
+    - RGB (Red, Green, Blue)
+    - HSV (Hue, Saturation, Value)
+    - HSL (Hue, Saturation, Lightness)
+- Real-time **color code conversion** between spaces
 
----
+### Palette Management
+- **Custom palette generation** (7 random colors)
+- Color saving with hex code display
+- One-click palette clearing
+- Click-to-select from saved colors
 
-## Installation and Running
+### UX Enhancements
+- Automatic HEX code copying to clipboard
+- Color preview thumbnail
+- Responsive UI with smart space management
+- Consistent styling across components
 
-1. Make sure you have Python 3.7+ and PyQt6 installed:
+## Installation ⚙️
+
+1. Ensure **Python 3.9+** is installed
+2. Install dependencies:
 ```
 pip install PyQt6
 ```
-
-2. Download or copy the `color_picker.py` file.
-
-3. Run the application with:
-
+3. Clone repository:
 ```
-python colorp.py
+git clone https://github.com/yourusername/color-picker.git
 ```
 
----
+## Usage 🖱️
 
-## Usage
+1. Launch application:
+```
+python main.py
+```
+2. Core controls:
+- **Mode selector**: Switch between RGB/HSV/HSL
+- **Input fields**: Manually enter values
+- **Apply buttons**: Confirm manual inputs
+- **Color dialog**: Open system picker
+- **Generate**: Create random palette
+- **Clear**: Reset saved colors
 
-- Click **"Select color"** to open the color picker dialog.
-- Enter RGB values manually and click **"Apply RGB"** to apply.
-- Click **"Generate Custom Palette"** to create a random palette of 6 colors.
-- Select a color from the palette to display it and copy its HEX code.
-- Click **"Clear Palette"** to remove all saved colors.
+## Development 🛠️
 
----
+### Requirements
+- PyQt6 6.4.0+
+- Python 3.9+
 
-## Screenshot
-
-![Color Picker Screenshot](screenshot.png)  
-*Example of the application interface*
-
----
-
-## License
-
-MIT License © 2025
-
----
-
-## Contact
-
-If you have questions or suggestions, please open an issue or contact me via GitHub.
+## License 📄
+MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
-Thank you for using!
+**Pro Tip** 💡: Double-click palette items to copy HEX codes instantly!
