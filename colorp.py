@@ -1,99 +1,136 @@
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QLabel, QColorDialog, QListWidget, QListWidgetItem,
-                             QSpinBox, QSizePolicy)  # Import necessary PyQt6 widgets and classes
-from PyQt6.QtGui import QPixmap, QColor, QFont, QIcon  # Import GUI related classes
-from PyQt6.QtCore import Qt  # Import Qt core constants
-import sys  # Import system module for application exit
-import random  # Import random module for palette generation
+                             QSpinBox, QSizePolicy, QComboBox)
+from PyQt6.QtGui import QPixmap, QColor, QFont, QIcon
+from PyQt6.QtCore import Qt
+import sys
+import random
 
 
 class ColorPickerApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Color Picker")  # Set window title
-        self.resize(400, 400)  # Set initial window size
-        self.setFixedSize(self.size())  # Fix window size to prevent resizing
+        self.setWindowTitle("Advanced Color Picker")  # Set window title
+        self.resize(500, 500)  # Set window size
+        self.setFixedSize(self.size())  # Fix window size
 
-        self.palette_colors = set()  # Set to store palette colors for fast lookup
+        self.palette_colors = set()  # Store palette colors for quick lookup
+        self._updating_ui = False  # Flag to prevent recursive UI updates
+        self.current_mode = 'RGB'  # Default color mode
 
-        self._create_ui()  # Create UI elements
-        self._setup_layouts()  # Setup layouts and add widgets
-        self._connect_signals()  # Connect signals to slots
-        self._apply_styles()  # Apply basic stylesheet
+        self._create_ui()
+        self._setup_layouts()
+        self._connect_signals()
+        self._apply_styles()
+        self._update_ui_visibility()  # Show only RGB inputs initially
 
     def _create_ui(self):
-        # Create label to show selected color info
-        self.color_label = QLabel("Color: not selected")  # Label for color info
-        self.color_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))  # Set font style and size
-        self.color_label.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)  # Align left and vertically center
+        # Mode selector
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItems(['RGB', 'HSV', 'HSL'])
 
-        # Label to show color preview square
-        self.color_icon = QLabel()  # Color preview icon
-        self.color_icon.setFixedSize(20, 20)  # Fixed size for preview square
-        self.color_icon.setStyleSheet("border: 1px solid #444;")  # Add border around preview
+        # Color preview label and icon
+        self.color_label = QLabel("Color: not selected")
+        self.color_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.color_label.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
 
-        self.button_dialog = QPushButton("Select color")  # Button to open QColorDialog
+        self.color_icon = QLabel()
+        self.color_icon.setFixedSize(30, 30)
+        self.color_icon.setStyleSheet("border: 2px solid #444; border-radius: 4px;")
 
-        # Spinboxes for RGB input with prefixes
-        self.spin_r = QSpinBox()  # Spinbox for Red component
-        self.spin_r.setRange(0, 255)  # Valid RGB range
-        self.spin_r.setPrefix("R: ")  # Prefix inside spinbox
+        # RGB controls
+        self.spin_r = QSpinBox()
+        self._configure_spinbox(self.spin_r, "R:", 0, 255)
+        self.spin_g = QSpinBox()
+        self._configure_spinbox(self.spin_g, "G:", 0, 255)
+        self.spin_b = QSpinBox()
+        self._configure_spinbox(self.spin_b, "B:", 0, 255)
+        self.button_apply_rgb = QPushButton("Apply RGB")
 
-        self.spin_g = QSpinBox()  # Spinbox for Green component
-        self.spin_g.setRange(0, 255)
-        self.spin_g.setPrefix("G: ")
+        # HSV controls
+        self.spin_h = QSpinBox()
+        self._configure_spinbox(self.spin_h, "H:", 0, 359)
+        self.spin_s_hsv = QSpinBox()
+        self._configure_spinbox(self.spin_s_hsv, "S:", 0, 100)
+        self.spin_v = QSpinBox()
+        self._configure_spinbox(self.spin_v, "V:", 0, 100)
+        self.button_apply_hsv = QPushButton("Apply HSV")
 
-        self.spin_b = QSpinBox()  # Spinbox for Blue component
-        self.spin_b.setRange(0, 255)
-        self.spin_b.setPrefix("B: ")
+        # HSL controls
+        self.spin_h_hsl = QSpinBox()
+        self._configure_spinbox(self.spin_h_hsl, "H:", 0, 359)
+        self.spin_s_hsl = QSpinBox()
+        self._configure_spinbox(self.spin_s_hsl, "S:", 0, 100)
+        self.spin_l = QSpinBox()
+        self._configure_spinbox(self.spin_l, "L:", 0, 100)
+        self.button_apply_hsl = QPushButton("Apply HSL")
 
-        self.button_apply_rgb = QPushButton("Apply RGB")  # Button to apply RGB values from spinboxes
+        # Common buttons and palette
+        self.button_dialog = QPushButton("Select color")
+        self.custom_palette_button = QPushButton("Generate Custom Palette")
+        self.palette_label = QLabel("Saved Colors:")
+        self.palette_label.setFont(QFont("Arial", 11))
+        self.palette_list = QListWidget()
+        self.palette_list.setFixedHeight(140)
+        self.clear_button = QPushButton("Clear Palette")
 
-        self.custom_palette_button = QPushButton("Generate Custom Palette")  # Button to generate random palette
-
-        self.palette_label = QLabel("Saved Colors:")  # Label above palette list
-        self.palette_label.setFont(QFont("Arial", 11))  # Font size for palette label
-
-        self.palette_list = QListWidget()  # List widget to display saved colors
-        self.palette_list.setFixedHeight(140)  # Fixed height to allow scrollbar if needed
-        self.palette_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)  # Expand horizontally, fixed vertically
-
-        self.clear_button = QPushButton("Clear Palette")  # Button to clear saved colors
-        self.clear_button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)  # Expand horizontally, fixed vertically
+    def _configure_spinbox(self, spinbox, prefix, min_val, max_val):
+        spinbox.setRange(min_val, max_val)
+        spinbox.setPrefix(f"{prefix} ")
+        spinbox.setSuffix("%" if prefix in ["S:", "V:", "L:"] else "")
+        spinbox.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
     def _setup_layouts(self):
-        main_layout = QVBoxLayout()  # Main vertical layout for the window
-        self.setLayout(main_layout)  # Set main layout
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
 
-        color_preview_layout = QHBoxLayout()  # Horizontal layout for label and preview
-        color_preview_layout.addWidget(self.color_label)  # Add color info label
-        color_preview_layout.addWidget(self.color_icon)  # Add color preview square
-        color_preview_layout.addStretch()  # Add stretch to push widgets to the left
-        main_layout.addLayout(color_preview_layout)  # Add preview layout to main layout
+        main_layout.addWidget(self.mode_combo)
 
-        main_layout.addWidget(self.button_dialog)  # Add color dialog button
+        preview_layout = QHBoxLayout()
+        preview_layout.addWidget(self.color_label)
+        preview_layout.addWidget(self.color_icon)
+        preview_layout.addStretch()
+        main_layout.addLayout(preview_layout)
 
-        rgb_layout = QHBoxLayout()  # Layout for RGB spinboxes and apply button
-        rgb_layout.addWidget(self.spin_r)  # Add Red spinbox
-        rgb_layout.addWidget(self.spin_g)  # Add Green spinbox
-        rgb_layout.addWidget(self.spin_b)  # Add Blue spinbox
-        rgb_layout.addWidget(self.button_apply_rgb)  # Add apply RGB button
-        main_layout.addLayout(rgb_layout)  # Add RGB layout to main layout
+        # RGB layout
+        rgb_layout = QHBoxLayout()
+        rgb_layout.addWidget(self.spin_r)
+        rgb_layout.addWidget(self.spin_g)
+        rgb_layout.addWidget(self.spin_b)
+        rgb_layout.addWidget(self.button_apply_rgb)
+        main_layout.addLayout(rgb_layout)
 
-        main_layout.addWidget(self.custom_palette_button)  # Add generate palette button
-        main_layout.addWidget(self.palette_label)  # Add palette label
+        # HSV layout
+        hsv_layout = QHBoxLayout()
+        hsv_layout.addWidget(self.spin_h)
+        hsv_layout.addWidget(self.spin_s_hsv)
+        hsv_layout.addWidget(self.spin_v)
+        hsv_layout.addWidget(self.button_apply_hsv)
+        main_layout.addLayout(hsv_layout)
 
-        palette_layout = QVBoxLayout()  # Layout for palette list and clear button
-        palette_layout.addWidget(self.palette_list)  # Add palette list widget
-        palette_layout.addWidget(self.clear_button)  # Add clear palette button
-        main_layout.addLayout(palette_layout)  # Add palette layout to main layout
+        # HSL layout
+        hsl_layout = QHBoxLayout()
+        hsl_layout.addWidget(self.spin_h_hsl)
+        hsl_layout.addWidget(self.spin_s_hsl)
+        hsl_layout.addWidget(self.spin_l)
+        hsl_layout.addWidget(self.button_apply_hsl)
+        main_layout.addLayout(hsl_layout)
+
+        main_layout.addWidget(self.button_dialog)
+        main_layout.addWidget(self.custom_palette_button)
+        main_layout.addWidget(self.palette_label)
+        main_layout.addWidget(self.palette_list)
+        main_layout.addWidget(self.clear_button)
 
     def _connect_signals(self):
-        self.button_dialog.clicked.connect(self.choose_color_dialog)  # Connect color dialog button
-        self.button_apply_rgb.clicked.connect(self.apply_rgb_color)  # Connect apply RGB button
-        self.custom_palette_button.clicked.connect(self.generate_custom_palette)  # Connect generate palette button
-        self.palette_list.itemClicked.connect(self.select_palette_color)  # Connect palette item click
-        self.clear_button.clicked.connect(self.clear_palette)  # Connect clear palette button
+        self.mode_combo.currentTextChanged.connect(self._change_color_mode)
+        self.button_apply_rgb.clicked.connect(self._apply_rgb)
+        self.button_apply_hsv.clicked.connect(self._apply_hsv)
+        self.button_apply_hsl.clicked.connect(self._apply_hsl)
+        self.button_dialog.clicked.connect(self.choose_color_dialog)
+        self.custom_palette_button.clicked.connect(self.generate_custom_palette)
+        self.palette_list.itemClicked.connect(self.select_palette_color)
+        self.clear_button.clicked.connect(self.clear_palette)
 
     def _apply_styles(self):
         self.setStyleSheet("""
@@ -103,92 +140,148 @@ class ColorPickerApp(QWidget):
             }
             QPushButton {
                 min-height: 25px;
+                padding: 4px;
             }
-        """)  # Basic stylesheet for consistent look
+            QSpinBox {
+                padding: 3px;
+            }
+        """)
 
-    def create_color_icon(self, color: QColor, size=20) -> QIcon:
-        pixmap = QPixmap(size, size)  # Create square pixmap of given size
-        pixmap.fill(color)  # Fill with specified color
-        return QIcon(pixmap)  # Return QIcon from pixmap
+    def _change_color_mode(self, mode):
+        self.current_mode = mode
+        self._update_ui_visibility()
 
-    def generate_custom_palette(self):
-        self.palette_list.clear()  # Clear existing palette
-        self.palette_colors.clear()  # Clear internal color set
+    def _update_ui_visibility(self):
+        rgb_visible = self.current_mode == 'RGB'
+        hsv_visible = self.current_mode == 'HSV'
+        hsl_visible = self.current_mode == 'HSL'
 
-        colors = set()  # Temporary set to hold unique colors
-        while len(colors) < 6:  # Generate 6 unique colors
-            r, g, b = (random.randint(0, 255) for _ in range(3))  # Random RGB values
-            color = QColor(r, g, b)
-            if color.isValid():
-                colors.add(color.name())  # Add hex code to set
+        self.button_apply_rgb.setVisible(rgb_visible)
+        self.spin_r.setVisible(rgb_visible)
+        self.spin_g.setVisible(rgb_visible)
+        self.spin_b.setVisible(rgb_visible)
 
-        for hex_code in colors:
-            self._add_color_to_palette(hex_code)  # Add each unique color to palette
+        self.button_apply_hsv.setVisible(hsv_visible)
+        self.spin_h.setVisible(hsv_visible)
+        self.spin_s_hsv.setVisible(hsv_visible)
+        self.spin_v.setVisible(hsv_visible)
 
-    def choose_color_dialog(self):
-        color = QColorDialog.getColor()  # Open color picker dialog
-        if color.isValid():
-            self.set_color(color)  # Set selected color
-        else:
-            self.reset_color()  # Reset if canceled
+        self.button_apply_hsl.setVisible(hsl_visible)
+        self.spin_h_hsl.setVisible(hsl_visible)
+        self.spin_s_hsl.setVisible(hsl_visible)
+        self.spin_l.setVisible(hsl_visible)
 
-    def apply_rgb_color(self):
-        r = self.spin_r.value()  # Get Red value from spinbox
-        g = self.spin_g.value()  # Get Green value
-        b = self.spin_b.value()  # Get Blue value
-        color = QColor(r, g, b)  # Create QColor from RGB
-        self.set_color(color)  # Set color
+    def _apply_rgb(self):
+        color = QColor(self.spin_r.value(), self.spin_g.value(), self.spin_b.value())
+        self.set_color(color)
+
+    def _apply_hsv(self):
+        color = QColor()
+        color.setHsv(
+            self.spin_h.value(),
+            int(self.spin_s_hsv.value() * 2.55),
+            int(self.spin_v.value() * 2.55)
+        )
+        self.set_color(color)
+
+    def _apply_hsl(self):
+        color = QColor()
+        color.setHsl(
+            self.spin_h_hsl.value(),
+            int(self.spin_s_hsl.value() * 2.55),
+            int(self.spin_l.value() * 2.55)
+        )
+        self.set_color(color)
 
     def set_color(self, color: QColor):
-        if not color.isValid():
-            return  # Ignore invalid colors
+        if not color.isValid() or self._updating_ui:
+            return
 
-        hex_code = color.name()  # Get hex code string
-        r, g, b = color.red(), color.green(), color.blue()  # Extract RGB components
-        self.color_label.setText(f"Color: {hex_code}  (R: {r}, G: {g}, B: {b})")  # Update label text
-        self.color_icon.setPixmap(self.create_color_icon(color).pixmap(20, 20))  # Update preview icon
+        self._updating_ui = True
 
-        QApplication.clipboard().setText(hex_code)  # Copy hex code to clipboard
+        # Update RGB spinboxes
+        self.spin_r.setValue(color.red())
+        self.spin_g.setValue(color.green())
+        self.spin_b.setValue(color.blue())
 
-        # Update spinboxes only if values differ to avoid unnecessary signals
-        if self.spin_r.value() != r:
-            self.spin_r.setValue(r)
-        if self.spin_g.value() != g:
-            self.spin_g.setValue(g)
-        if self.spin_b.value() != b:
-            self.spin_b.setValue(b)
+        # Update HSV spinboxes
+        h, s, v, _ = color.getHsv()
+        self.spin_h.setValue(h)
+        self.spin_s_hsv.setValue(round(s / 2.55))
+        self.spin_v.setValue(round(v / 2.55))
+
+        # Update HSL spinboxes
+        h_hsl, s_hsl, l_hsl, _ = color.getHsl()
+        self.spin_h_hsl.setValue(h_hsl)
+        self.spin_s_hsl.setValue(round(s_hsl / 2.55))
+        self.spin_l.setValue(round(l_hsl / 2.55))
+
+        # Update UI elements
+        hex_code = color.name()
+        self.color_label.setText(f"Color: {hex_code}  (R: {color.red()}, G: {color.green()}, B: {color.blue()})")
+        self.color_icon.setPixmap(self.create_color_icon(color).pixmap(30, 30))
+        QApplication.clipboard().setText(hex_code)
 
         if not self.is_color_in_palette(hex_code):
-            self._add_color_to_palette(hex_code)  # Add new color to palette if not present
+            self._add_color_to_palette(hex_code, color)
+
+        self._updating_ui = False
+
+    def create_color_icon(self, color: QColor, size=20) -> QIcon:
+        pixmap = QPixmap(size, size)
+        pixmap.fill(color)
+        return QIcon(pixmap)
+
+    def generate_custom_palette(self):
+        self.palette_list.clear()
+        self.palette_colors.clear()
+
+        colors = set()
+        while len(colors) < 6:
+            r, g, b = (random.randint(0, 255) for _ in range(3))
+            color = QColor(r, g, b)
+            if color.isValid():
+                colors.add(color.name())
+
+        for hex_code in colors:
+            self._add_color_to_palette(hex_code)
+
+    def choose_color_dialog(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self.set_color(color)
+        else:
+            self.reset_color()
 
     def reset_color(self):
-        self.color_label.setText("Color: not selected")  # Reset label text
-        self.color_icon.clear()  # Clear color preview icon
+        self.color_label.setText("Color: not selected")
+        self.color_icon.clear()
 
     def is_color_in_palette(self, hex_code: str) -> bool:
-        return hex_code in self.palette_colors  # Fast lookup in set
+        return hex_code in self.palette_colors
 
-    def _add_color_to_palette(self, hex_code: str):
-        color = QColor(hex_code)
+    def _add_color_to_palette(self, hex_code: str, color: QColor = None):
+        if not color:
+            color = QColor(hex_code)
         if not color.isValid():
-            return  # Ignore invalid colors
-        self.palette_colors.add(hex_code)  # Add hex code to internal set
-        item = QListWidgetItem(hex_code)  # Create list item with hex code text
-        item.setIcon(self.create_color_icon(color))  # Set color icon for item
-        self.palette_list.addItem(item)  # Add item to palette list
+            return
+        self.palette_colors.add(hex_code)
+        item = QListWidgetItem(hex_code)
+        item.setIcon(self.create_color_icon(color))
+        self.palette_list.addItem(item)
 
     def select_palette_color(self, item: QListWidgetItem):
-        hex_code = item.text()  # Get hex code from clicked item
-        color = QColor(hex_code)  # Create QColor from hex
-        self.set_color(color)  # Set selected color
+        hex_code = item.text()
+        color = QColor(hex_code)
+        self.set_color(color)
 
     def clear_palette(self):
-        self.palette_list.clear()  # Clear all items from palette list
-        self.palette_colors.clear()  # Clear internal color set
+        self.palette_list.clear()
+        self.palette_colors.clear()
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)  # Create QApplication instance
-    window = ColorPickerApp()  # Create main window instance
-    window.show()  # Show window
-    sys.exit(app.exec())  # Run application event loop
+    app = QApplication(sys.argv)
+    window = ColorPickerApp()
+    window.show()
+    sys.exit(app.exec())
