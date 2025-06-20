@@ -7,6 +7,8 @@
 ![GUI](https://img.shields.io/badge/GUI-PyQt6-41CD52)
 ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)
+[![Stars](https://img.shields.io/github/stars/VioletSoul/ColorPicker.svg?style=social)](https://github.com/VioletSoul/ColorPicker)
+[![Last Commit](https://img.shields.io/github/last-commit/VioletSoul/ColorPicker.svg)](https://github.com/VioletSoul/ColorPicker/commits/main)
 
 A feature-rich color selection tool with multiple color spaces support and palette management.
 
