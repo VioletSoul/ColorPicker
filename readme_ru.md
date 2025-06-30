@@ -7,6 +7,8 @@
 ![GUI](https://img.shields.io/badge/GUI-PyQt6-41CD52)
 ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)
+![Repo Size](https://img.shields.io/github/repo-size/VioletSoul/ColorPicker)
+![Code Size](https://img.shields.io/github/languages/code-size/VioletSoul/ColorPicker)
 [![Stars](https://img.shields.io/github/stars/VioletSoul/ColorPicker.svg?style=social)](https://github.com/VioletSoul/ColorPicker)
 [![Last Commit](https://img.shields.io/github/last-commit/VioletSoul/ColorPicker.svg)](https://github.com/VioletSoul/ColorPicker/commits/main)
 
